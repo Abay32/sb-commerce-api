@@ -2,6 +2,7 @@ package com.api.ecommerce.service.impl;
 
 import com.api.ecommerce.dto.UserDto;
 import com.api.ecommerce.dto.UserResponse;
+import com.api.ecommerce.exceptions.UserNotFoundException;
 import com.api.ecommerce.models.User;
 import com.api.ecommerce.repositories.UserRepository;
 import com.api.ecommerce.service.UserService;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -48,6 +50,12 @@ public class UserServiceImpl implements UserService {
         return userResponse;
     }
 
+
+    @Override
+    public UserDto getUserById(Long id){
+        User user = userRepository.findById(id).orElseThrow(()-> new UserNotFoundException("User not found"));
+        return  mapToDto(user);
+    }
 
     private UserDto mapToDto(User user) {
         UserDto userDto = new UserDto();

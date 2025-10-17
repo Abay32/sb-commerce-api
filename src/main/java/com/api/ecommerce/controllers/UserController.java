@@ -1,14 +1,12 @@
 package com.api.ecommerce.controllers;
 
+import com.api.ecommerce.dto.UserDto;
 import com.api.ecommerce.dto.UserResponse;
 import com.api.ecommerce.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
@@ -16,6 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private UserService userService;
+
+    @GetMapping("user/{id}")
+    public ResponseEntity<UserDto> userDetails(@PathVariable Long id){
+        return ResponseEntity.ok(userService.getUserById(id));
+    }
 
     @GetMapping("users")
     public ResponseEntity<UserResponse> getUsers(
