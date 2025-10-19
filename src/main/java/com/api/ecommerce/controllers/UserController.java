@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -31,17 +32,19 @@ public class UserController {
         var user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
         return  ResponseEntity.ok( user );
     }
-
-
     @GetMapping("users")
     public ResponseEntity<UserResponse> getUsers(
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
-            @RequestParam String sort
+            @RequestParam(name = "sortBy", defaultValue = "", required = false) String sortBy
             ){
 
-            Pageable pageable = PageRequest.of(pageNo, pageSize);
-            Page<User> users = userRepository.findAll(pageable);
+            if (!Set.of("firstName", "lastName", "createdDate").contains(sortBy)){
+                sortBy = "firstName";
+            }
+
+            Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
+            Page<User> users = userRepository.findAll((pageable));
 
             List<User> listOfUsers = users.getContent();
 
