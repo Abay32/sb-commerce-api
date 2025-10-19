@@ -1,7 +1,6 @@
 package com.api.ecommerce.controllers;
 
-import com.api.ecommerce.dto.UserDto;
-import com.api.ecommerce.dto.UserResponse;
+import com.api.ecommerce.dto.*;
 import com.api.ecommerce.exceptions.UserNotFoundException;
 import com.api.ecommerce.mappers.UserMapper;
 import com.api.ecommerce.models.User;
@@ -14,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.Set;
@@ -63,6 +63,60 @@ public class UserController {
         return new ResponseEntity<>(userResponse, HttpStatus.OK);
 
         //return new ResponseEntity<>(userService.getUsers(pageNo, pageSize), HttpStatus.OK);
+    }
+
+    @PostMapping("user/create")
+    public ResponseEntity<UserDto> createUser(
+            UriComponentsBuilder uriBuilder,
+            @RequestBody CreateUserRequest createUserRequest){
+        var user = userMapper.toEntity(createUserRequest);
+        userRepository.save(user);
+
+        var userDto = userMapper.toDto(user);
+        var uri = uriBuilder.path("/user/create/{id}").buildAndExpand(userDto.getId()).toUri();
+
+        return  ResponseEntity.created(uri).body(userDto);
+    }
+
+    @PutMapping("user/{id}/update")
+    public ResponseEntity<UserDto> updateUser(
+            @RequestBody UpdateUserRequest updateRequest,
+            @PathVariable(name = "id") Long id){
+        var user = userRepository.findById(id)
+                .orElseThrow(()-> new UserNotFoundException("User not found!"));
+
+        userMapper.update(updateRequest, user);
+        userRepository.save(user);
+
+        return ResponseEntity.ok(userMapper.toDto(user));
+
+    }
+
+    @DeleteMapping("user/{id}/delete")
+    public ResponseEntity<Void> deleteUser(@PathVariable(name="id") Long id) {
+        var user = userRepository.findById(id)
+                .orElseThrow(()-> new UserNotFoundException("User not found!"));
+
+        userRepository.delete(user);
+        return ResponseEntity.noContent().build();
+
+
+    }
+
+    @PostMapping("user/{id}/change-password")
+    public ResponseEntity<Void> changePassword(
+            @PathVariable(name = "id") Long id,
+            @RequestBody ChangePasswordRequest changeRequest
+        ){
+        var user = userRepository.findById(id)
+                .orElseThrow(()-> new UserNotFoundException("User not found!"));
+        if (!user.getPassword().equals(changeRequest.getOldPassword())) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        user.setPassword(changeRequest.getNewPassword());
+        userRepository.save(user);
+
+        return ResponseEntity.noContent().build();
     }
 
 

@@ -15,6 +15,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Table(name="users")
+@ToString(exclude = "addresses")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,9 +43,6 @@ public class User {
         address.setUser(null);
     }
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
-    private Profile profile;
-
     @ManyToMany
     @JoinTable(
             name = "wishlist",
@@ -60,8 +58,12 @@ public class User {
     public String toString() {
         return getClass().getSimpleName() + "(" +
                 "id= " + id + ", " +
-                "name= " + firstName + lastName + ", " +
+                "firstName= " + firstName + ", " +
+                "lastName= " + lastName + ", " +
+                "password= " + password + ", " +
                 "email= " + email + ")";
     }
+
+
 
 }
