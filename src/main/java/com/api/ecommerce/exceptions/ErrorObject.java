@@ -7,7 +7,7 @@ import java.util.Date;
 
 @Data
 public class ErrorObject {
-    private Integer statusCode;
-    private String message;
+    private Integer status;
+    private String error;
     private Date timestamp;
 }
